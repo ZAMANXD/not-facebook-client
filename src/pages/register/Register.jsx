@@ -2,6 +2,9 @@ import axios from "axios";
 import { useRef } from "react";
 import "./register.css";
 import { useHistory } from "react-router";
+import { useEffect } from "react";
+import jwtDecode from "jwt-decode";
+import { useState } from "react";
 
 export default function Register() {
   const username = useRef();
@@ -9,6 +12,9 @@ export default function Register() {
   const password = useRef();
   const passwordAgain = useRef();
   const history = useHistory();
+  
+
+  const [user, setUser] = useState({});
 
   const handleClick = async (e) => {
     e.preventDefault();
@@ -28,6 +34,28 @@ export default function Register() {
       }
     }
   };
+
+  const handleCallbackResponse = (response) => {
+    console.log("Encoded JWT ID Token: " + response.credential);
+    let userObject = jwtDecode(response.credential);
+    setUser(userObject);
+     history.push("/home");
+  }
+
+  useEffect(()=>{
+    /* global google */
+    // eslint-disable-next-line no-unused-expressions
+    google.accounts.id.initialize({
+      client_id: "1031240701134-23r5alage2037jq5etfidh4qc5qtf2nc.apps.googleusercontent.com",
+      callback: handleCallbackResponse,
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById("signInDiv"),
+      {theme: "outline", size: "large"}
+    );
+
+  }, [])
 
   return (
     <div className="login">
@@ -73,6 +101,11 @@ export default function Register() {
             </button>
             <button className="loginRegisterButton">Log into Account</button>
           </form>
+          <div className="google-sign-in">
+            <h3>Or continue with</h3>
+            <div id="signInDiv">Google</div>
+          </div>
+          
         </div>
       </div>
     </div>
